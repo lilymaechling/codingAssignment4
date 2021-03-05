@@ -233,7 +233,6 @@ class graph(object):
 
 
     def DFSwithFirst(self) :
-
         for v in self.vertices:
             self.visited[v] = 0
             self.first[v] = 0
@@ -272,11 +271,72 @@ class graph(object):
         self.time += 1
         self.last[vertex] = self.time
         
+
+    def DFS_SCC(self, isOrder, order):
+        global time
+
+        if(isOrder):
+            self.Reorder_Edges(order)
+
+        for v in self.vertices:
+            self.visited[v] = 0
+            self.first[v] = 0
+            self.last[v] = 0
+            self.root[v] = 0
+            self.Fcomp[v] = 0
         
-    #def findSCC(self):
+        time = 0 # reset counter
+
+        for v in self.vertices:
+            if self.visited[v] == 0:
+                self.fcomp = self.fcomp + 1 # adds to tree count
+                self.root[self.fcomp] = v # sets root of current tree
+                self.DFS_SCC_Helper(v)
+
+        print(self.visited)
+        print(self.first)
+        print(self.last)
+        print("num of SCC: ", self.fcomp)
+
+    
+    def DFS_SCC_Helper(self, v):
+        global time
+        stack = []
+        stack.append(v)
+        while len(stack) != 0:
+            time += 1
+            u = stack[-1]
+            self.Fcomp[u] = self.fcomp
+            if self.visited[u] == 0: # unvisisted
+                self.visited[u] = 1
+                self.first[u] = time
+                for n in sorted(self.adj_list[u], reverse=True): # reverse helps with stack ordering
+                    if self.visited[n] == 0: # unvisited
+                        stack.append(n)
+            else: # this vertex has been seen at least once and shouldn't be in stack
+                stack.pop() # remove from stack because already seen
+                if self.visited[u] == 1: # visited once
+                    self.visited[u] = 2
+                    self.last[u] = time
+
+        
+
+
+        
+    def findSCC(self):
         # run DFS in forward order
+        self.DFS_SCC(False, None)
         # resorted vertices in decreasing order of lasts
-        # run DFS again 
+        pi = sorted(self.last, key=self.last.get, reverse=True)
+        # reverse the graph
+        grev = graph()
+        for v in self.vertices:
+            grev.Add_Vertex(v)
+            for u in self.adj_list[v]:
+                grev.Add_Edge(u,v) 
+        
+        # run DFS again
+        grev.DFS_SCC(True, pi) 
         # return number of SCC and  num vertices in max SCC 
 
     
@@ -297,5 +357,8 @@ graph2.Read_Edges("graph2.txt")
 graph3 = graph()
 graph3.Read_Edges("graph3.txt")
 graph3.DFSwithFirst()
+
+#### Problem 1d
+graph2.DFS_SCC(False, None)
 
 
