@@ -8,16 +8,27 @@
 ##### Modified by : Deeparnab Chakrabarty, Apr 2019
 
 import itertools
+import string
+import time
 
 class graph(object):
 
 #### Initializing empty graph
 ####
 
+    # Globals
+
     def __init__(self):
         self.vertices = set()    # Vertices are stored in a set   
         self.adj_list = dict()   # Initial adjacency list is empty dictionary 
         self.weights = dict()    # Initialize weights list for edges; default is 1
+        self.visited = dict()
+        self.time = 0
+        self.first = dict()
+        self.last = dict()
+        self.Fcomp = dict()
+        self.fcomp = 0
+        self.root = dict()
 
 
 #### Stats
@@ -173,4 +184,118 @@ class graph(object):
         for v in self.vertices:
             self.adj_list[v] = sorted(self.adj_list[v], key=lambda x:sg.index(x))
 
- 
+
+ #### Calculates maximum out degree
+    def max_degree(self):
+        max = 0
+        for v in self.vertices:
+            if len(self.adj_list[v]) > max:
+                max = len(self.adj_list[v])
+        return max
+
+#### Depth First Search
+
+    def DFS(self) :
+
+        for v in self.vertices:
+            self.visited[v] = 0
+
+        path = [] 
+        
+        print("sorted", sorted(self.vertices))
+        for v in sorted(self.vertices):
+            if self.visited[v] == 0:
+                self.DFSHelper(v, path)
+        print(self.visited)
+        return path
+
+    def DFSHelper(self, vertex, path):
+
+        stack = [] 
+        stack.append(vertex) 
+
+        
+        while len(stack) != 0: # not empty
+            u = stack[-1]
+            stack.pop()
+            print("self visisted u " , self.visited[u])
+            if self.visited[u] == 0: # not visited
+                self.visited[u] = 1
+                path.append(u)
+                print("new vertex ", u)
+            
+                # add all unvisited neighbors
+            for n in sorted(self.adj_list[u], reverse=True):
+                #print("i am vertex ", u, " and my neighbors are ", sorted(self.adj_list[u]))
+                #print(sorted(self.adj_list[u]), n)
+                if self.visited[n] == 0:
+                    stack.append(n)
+
+
+    def DFSwithFirst(self) :
+
+        for v in self.vertices:
+            self.visited[v] = 0
+            self.first[v] = 0
+            self.last[v] = 0
+            self.root[v] = 0
+            self.Fcomp[v] = 0
+        
+        # print("sorted", sorted(self.vertices))
+        for v in sorted(self.vertices):
+            if self.visited[v] == 0:
+                self.fcomp += 1
+                self.root[self.fcomp] = v
+                self.DFSwithFirstHelper(v)
+        print(self.visited)
+        
+        print(self.first)
+        print(self.last)
+        
+
+    def DFSwithFirstHelper(self, vertex):
+
+        # stack = [] 
+        # stack.append(vertex) 
+
+        self.visited[vertex] = 1
+        self.Fcomp[vertex] = self.fcomp
+        self.time += 1
+        self.first[vertex] = self.time
+        
+        for n in sorted(self.adj_list[vertex]):
+            if self.visited[n] == 0:
+                # Add edge to forest
+                #self.Fcomp.Add_Edge(vertex, n)
+                self.DFSwithFirstHelper(n)
+        
+        self.time += 1
+        self.last[vertex] = self.time
+        
+        
+    #def findSCC(self):
+        # run DFS in forward order
+        # resorted vertices in decreasing order of lasts
+        # run DFS again 
+        # return number of SCC and  num vertices in max SCC 
+
+    
+
+#### Problem 1a
+facebookGraph = graph()
+facebookGraph.Read_Edges("facebooksample.txt")
+# print("Number of vertices: ", facebookGraph.num_vertices())
+# print("Number of edges: ", facebookGraph.num_edges())
+# print("Maximum out degree: ", facebookGraph.max_degree())
+
+#### Problem 1b
+graph2 = graph()
+graph2.Read_Edges("graph2.txt")
+#print(graph2.DFS())
+
+#### Problem 1c
+graph3 = graph()
+graph3.Read_Edges("graph3.txt")
+graph3.DFSwithFirst()
+
+
