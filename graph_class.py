@@ -218,7 +218,7 @@ class graph(object):
             if self.visited[u] == 0:  # not visited
                 self.visited[u] = 1
                 path.append(u)
-                #topstack.append(u)
+                topstack.append(u)
 
 
                 # add all unvisited neighbors
@@ -229,7 +229,7 @@ class graph(object):
                         stack.append(n)
                         #topstack.append(n)
 
-                topstack.append(u)
+            #topstack.append(u)
 
 
 
@@ -380,8 +380,75 @@ class graph(object):
 
 
     def Longest_Path(self):
-        sigma = self.Top_Order()
+        #
+        # dist = [-10**9 for i in range(self.num_vertices())]
+
+        sig = self.Top_Order()
+        #Convert to ints
+        sigma = [int(i) for i in sig]
+
         print(sigma)
+
+        # s = 1
+        # dist[s] = 0
+        #
+        # while len(sigma) > 0:
+        #     u = sigma[-1]
+        #     del sigma[-1]
+        #
+        #     if dist[u]. != 10**9:
+        #         for i in self.adj_list[u]:
+        #             if dist[i[0]] < dist[u] + i[1]:
+        #                 dist[i[0]] = dist[u] + i[1]
+        #
+        # for i in range(self.num_vertices()):
+        #     print("INF ",end="") if (dist[i] == -10**9) else print(dist[i],end=" ")
+
+        i = 0
+        j = 0
+        # s = sigma[i]
+
+        # Set to neg infinity
+        longest = [-10**9 for k in range(len(sigma))]
+        parent = [-10 ** 9 for k in range(len(sigma))]
+        longest[sigma[i]] = 0
+        parent[sigma[i]] = -10**9
+
+        while j < i:
+            longest[sigma[j]] = -10**9
+            parent[sigma[j]] = -10**9
+            j +=1
+
+        # j = i + 1
+        #l = 0
+        for j in range(i+1, len(sigma)):
+
+            #print(i, j)
+
+            possble_max = list()
+
+            longl = 0
+            for l in range (0, j):
+                #print(l)
+                # print(sigma[l], sigma[j])
+                #print(sigma[j])
+                if self.isEdge(str(sigma[l]), str(sigma[j])) and longest[sigma[l]] != 1:
+                    #print("hit")
+                    #print(sigma)
+                    #print(longest[sigma[l]], int(self.weight(str(sigma[l]), str(sigma[j]))))
+                    possble_max.append(longest[sigma[l]] + int(self.weight(str(sigma[l]), str(sigma[j]))))
+                longl = l
+            #print(possble_max)
+
+            if len(possble_max) != 0:
+                longest[sigma[j]] = max(possble_max)
+
+            if longest[sigma[j]] != -10**9:
+                parent[sigma[j]] = sigma[longl]
+        print(longest)
+        # Recovery
+
+
 
 
 #### Problem 1a
