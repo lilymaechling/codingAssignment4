@@ -9,7 +9,7 @@
 
 import itertools
 import string
-import time
+import time as timer
 
 class graph(object):
 
@@ -29,6 +29,8 @@ class graph(object):
         self.Fcomp = dict()
         self.fcomp = 0
         self.root = dict()
+        self.SCCs = list()
+        self.num_SCC = 0
 
 
 #### Stats
@@ -202,11 +204,11 @@ class graph(object):
 
         path = [] 
         
-        print("sorted", sorted(self.vertices))
         for v in sorted(self.vertices):
             if self.visited[v] == 0:
                 self.DFSHelper(v, path)
-        print(self.visited)
+
+        print("first", self.first)
         return path
 
     def DFSHelper(self, vertex, path):
@@ -218,11 +220,9 @@ class graph(object):
         while len(stack) != 0: # not empty
             u = stack[-1]
             stack.pop()
-            print("self visisted u " , self.visited[u])
             if self.visited[u] == 0: # not visited
                 self.visited[u] = 1
                 path.append(u)
-                print("new vertex ", u)
             
                 # add all unvisited neighbors
             for n in sorted(self.adj_list[u], reverse=True):
@@ -285,18 +285,20 @@ class graph(object):
             self.root[v] = 0
             self.Fcomp[v] = 0
         
+        self.SCCs.append(0)
+        
         time = 0 # reset counter
 
-        for v in self.vertices:
+
+        for v in sorted(self.vertices):
             if self.visited[v] == 0:
                 self.fcomp = self.fcomp + 1 # adds to tree count
                 self.root[self.fcomp] = v # sets root of current tree
+
+                self.num_SCC += 1
+                self.SCCs.append(list())
                 self.DFS_SCC_Helper(v)
 
-        print(self.visited)
-        print(self.first)
-        print(self.last)
-        print("num of SCC: ", self.fcomp)
 
     
     def DFS_SCC_Helper(self, v):
@@ -310,6 +312,7 @@ class graph(object):
             if self.visited[u] == 0: # unvisisted
                 self.visited[u] = 1
                 self.first[u] = time
+                self.SCCs[self.num_SCC].append(u) # add vertex to current SCC
                 for n in sorted(self.adj_list[u], reverse=True): # reverse helps with stack ordering
                     if self.visited[n] == 0: # unvisited
                         stack.append(n)
@@ -324,10 +327,11 @@ class graph(object):
 
         
     def findSCC(self):
+        global time
         # run DFS in forward order
         self.DFS_SCC(False, None)
         # resorted vertices in decreasing order of lasts
-        pi = sorted(self.last, key=self.last.get, reverse=True)
+        pi = sorted(self.last, key=self.last.get)
         # reverse the graph
         grev = graph()
         for v in self.vertices:
@@ -336,8 +340,32 @@ class graph(object):
                 grev.Add_Edge(u,v) 
         
         # run DFS again
-        grev.DFS_SCC(True, pi) 
-        # return number of SCC and  num vertices in max SCC 
+        for v in grev.vertices:
+            grev.visited[v] = 0
+            grev.first[v] = 0
+            grev.last[v] = 0
+        
+        grev.SCCs.append([0])
+        
+        time = 0 # reset counter
+
+        # run in pi order
+        while len(pi) != 0:
+            v = pi.pop()
+            if grev.visited[v] == 0:
+                grev.num_SCC += 1
+                grev.SCCs.append(list())
+                grev.DFS_SCC_Helper(v)
+    
+        # return number of SCC and  num vertices in max SCC
+        biggest = 0
+        for scc in grev.SCCs:
+            if len(scc) > biggest:
+                biggest = len(scc)
+            
+        print("num of SCC: ", grev.num_SCC)
+        print("biggest SCC: ", biggest)
+        
 
     
 
@@ -355,10 +383,31 @@ graph2.Read_Edges("graph2.txt")
 
 #### Problem 1c
 graph3 = graph()
-graph3.Read_Edges("graph3.txt")
-graph3.DFSwithFirst()
+# graph3.Read_Edges("graph3.txt")
+# graph3.DFSwithFirst()
 
 #### Problem 1d
-graph2.DFS_SCC(False, None)
+graph2.findSCC()
+
+
+# start = timer.time()
+# facebookGraph.findSCC()
+# end = timer.time()
+# print("Time taken for facebook: ", end-start)
+
+# epin= graph()
+# epin.Read_Edges("epinions.txt")
+# start = timer.time()
+# epin.findSCC()
+# end = timer.time()
+# print("Time taken for epinions: ", end-start)
+
+
+google= graph()
+google.Read_Edges("googlemaps.txt")
+start = timer.time()
+google.findSCC()
+end = timer.time()
+print("Time taken for google maps: ", end-start)
 
 
