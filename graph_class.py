@@ -471,13 +471,8 @@ class graph(object):
         #    print(longest)
         #    print(parent)
 
-        
 
-
-
-
-
-        i = 0
+        i = 1
         s = sigma[i]
         print("start vertex ->", s)
 
@@ -510,12 +505,12 @@ class graph(object):
             #for l in range(i, j):
             #print(self.adj_list[i])
             
-            for l in range(i,j):
+            for l in range(0,j):
                 # print(l, j)
                 if self.isEdge(str(sigma[l]), str(sigma[j])) :
                     # print(str(sigma[l]), str(sigma[j]))
                     if longest[sigma[l]] != -10**9:
-                        print(str(sigma[l]), str(sigma[j]))
+                        #print(longest[sigma[l]])
                         # print(longest[sigma[l]], int(self.weight(str(sigma[l]), str(sigma[j]))))
                         #possible_max.append(int(self.weight(str(sigma[l]), str(sigma[j]))))
                         # print(self.weight(str(sigma[l]), str(sigma[j])))
@@ -525,17 +520,34 @@ class graph(object):
                         # print(longest[sigma[l]] + int(self.weight(str(sigma[l]), str(sigma[j]))))
             #print("Finished For loop")
             if len(possible_max) != 0 :
+                # print(possible_max)
                 longest[sigma[j]] = max(possible_max)
+                #print(j)
+                #print(longest[sigma[j]])
             #print("Finished assignment")
             if longest[sigma[j]] != -10**9:
                 parent[sigma[j]] = sigma[l]
         #print("Finished mega for loop")
-        print(longest)
-        print(parent)
+        #print(longest)
+        #print(parent)
 
         # Recover our solution
-        # j = 
+        j = self.num_vertices() - 1
+        print(len(sigma), j)
+        #print(sigma[j])
+        print(len(longest))
+        if longest[sigma[j]] == 10**9:
+            return null
 
+        w = sigma[j]
+        p = list()
+        p.append(sigma[j])
+
+        while parent[w] != -10**9:
+            p.append(parent[w])
+            w = parent[w]
+
+        return p
 
         #print(sigma)
 
@@ -648,5 +660,5 @@ graph2.Read_Edges("graph2.txt")
 # Part e
 fb = graph()
 fb.Read_Edges("facebooksample.txt")
-fb.Longest_Path()
+print(fb.Longest_Path())
 
