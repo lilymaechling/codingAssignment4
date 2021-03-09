@@ -325,12 +325,29 @@ class graph(object):
 
 
     def cycle(self):
+        cycle = []
         for v in self.vertices:
+            print("v", v)
             neighs = self.adj_list[v]
             for w in neighs:
+                print("nbr", w)
                 if self.first[w] < self.first[v] and self.first[v] < self.last[v] and self.last[v] < self.last[w]:
-                    return True
-        return False
+                    print("w", w)
+                    cycle += [v,w]
+                    break
+            if len(cycle) > 0:
+                break
+
+        w = cycle[-1]
+        # nbrs = self.adj_list[w]
+        for x in self.adj_list[w]:
+            print("x", x)
+            if self.first[x] < self.first[w] and self.first[w] < self.last[w] and self.last[w] < self.last[x]:
+                print("this")
+                cycle.append(x)
+                w = x
+
+        return cycle
 
 
     def findSCC(self):
