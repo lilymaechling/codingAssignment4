@@ -251,6 +251,7 @@ class graph(object):
                 self.fcomp += 1
                 self.root[self.fcomp] = v
                 self.DFSwithFirstHelper(v)
+
         print(self.visited)
 
         print(self.first)
@@ -321,6 +322,16 @@ class graph(object):
                 if self.visited[u] == 1:  # visited once
                     self.visited[u] = 2
                     self.last[u] = time
+
+
+    def cycle(self):
+        for v in self.vertices:
+            neighs = self.adj_list[v]
+            for w in neighs:
+                if self.first[w] < self.first[v] and self.first[v] < self.last[v] and self.last[v] < self.last[w]:
+                    return True
+        return False
+
 
     def findSCC(self):
         global time
@@ -463,13 +474,15 @@ graph2 = graph()
 graph2.Read_Edges("graph2.txt")
 #print(graph2.DFS())
 
-#### Problem 1c
+####### problem 1c
+# Checking if there's a cycle in graph 3
 graph3 = graph()
-# graph3.Read_Edges("graph3.txt")
-# graph3.DFSwithFirst()
+graph3.Read_Edges("graph3.txt")
+graph3.DFSwithFirst()
+print(graph3.cycle())
 
 #### Problem 1d
-graph2.findSCC()
+# graph2.findSCC()
 
 # start = timer.time()
 # facebookGraph.findSCC()
@@ -494,4 +507,5 @@ graph2.findSCC()
 # Part e
 fb = graph()
 fb.Read_Edges("facebooksample.txt")
-fb.Longest_Path()
+# fb.Longest_Path()
+
