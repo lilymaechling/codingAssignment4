@@ -14,6 +14,8 @@ import time as timer
 
 class graph(object):
 
+
+
     #### Initializing empty graph
     ####
 
@@ -218,7 +220,7 @@ class graph(object):
             if self.visited[u] == 0:  # not visited
                 self.visited[u] = 1
                 path.append(u)
-                # topstack.append(u)
+                topstack.append(u)
 
 
                 # add all unvisited neighbors
@@ -228,8 +230,7 @@ class graph(object):
                     if self.visited[n] == 0:
                         stack.append(n)
                         #topstack.append(n)
-            else :
-                topstack.append(u)
+
             #topstack.append(u)
 
 
@@ -239,6 +240,9 @@ class graph(object):
         #print(topstack)
 
     def DFSwithFirst(self):
+
+        parent_dict = dict()
+
         for v in self.vertices:
             self.visited[v] = 0
             self.first[v] = 0
@@ -251,14 +255,17 @@ class graph(object):
             if self.visited[v] == 0:
                 self.fcomp += 1
                 self.root[self.fcomp] = v
-                self.DFSwithFirstHelper(v)
 
-        print(self.visited)
+                self.DFSwithFirstHelper(v, parent_dict)
 
-        print(self.first)
-        print(self.last)
+        print("visted", self.visited)
 
-    def DFSwithFirstHelper(self, vertex):
+        print("first", self.first)
+        print("last", self.last)
+
+        return parent_dict
+
+    def DFSwithFirstHelper(self, vertex, parent_dict):
 
         # stack = []
         # stack.append(vertex)
@@ -272,10 +279,12 @@ class graph(object):
             if self.visited[n] == 0:
                 # Add edge to forest
                 # self.Fcomp.Add_Edge(vertex, n)
-                self.DFSwithFirstHelper(n)
+                self.DFSwithFirstHelper(n, parent_dict)
+                parent_dict[n] = vertex
 
         self.time += 1
         self.last[vertex] = self.time
+
 
     def DFS_SCC(self, isOrder, order):
         global time
@@ -326,29 +335,33 @@ class graph(object):
 
 
     def cycle(self):
-        cycle = []
+
+        p_dict = self.DFSwithFirst()
+
+        cycle = False
         for v in self.vertices:
-            print("v", v)
             neighs = self.adj_list[v]
             for w in neighs:
-                print("nbr", w)
                 if self.first[w] < self.first[v] and self.first[v] < self.last[v] and self.last[v] < self.last[w]:
-                    print("w", w)
-                    cycle += [v,w]
+                    beg, end = w, v
+                    cycle = True
                     break
-            if len(cycle) > 0:
+            if cycle:
                 break
 
-        w = cycle[-1]
-        # nbrs = self.adj_list[w]
-        for x in self.adj_list[w]:
-            print("x", x)
-            if self.first[x] < self.first[w] and self.first[w] < self.last[w] and self.last[w] < self.last[x]:
-                print("this")
-                cycle.append(x)
-                w = x
+        if cycle:
 
-        return cycle
+            path = [end]
+
+            ver = end
+
+            while ver != beg:
+                ver = p_dict[ver]
+                path.insert(0, ver)
+
+            return  "cycl" + "e " + str(path)
+
+        return "No cycl" + "e found"
 
 
     def findSCC(self):
@@ -395,73 +408,88 @@ class graph(object):
         #Run DFS
         self.DFS()
         return topstack[::-1]
-        # return topstack
+        # print(topstack[::-1])
+
+        #new_stack = []
+        # for n in topstack:
+        #     new_stack.append(int(n))
+        # sort = sorted(new_stack, reverse=True)
+        # print(sort)
+
+        # Re-order? Not sure if this works or not but what ever
+        #self.Reorder_Edges(path)
+
 
 
     def Longest_Path(self):
-       
+        #
+        # dist = [-10**9 for i in range(self.num_vertices())]
+
         sig = self.Top_Order()
         #Convert to ints
         sigma = [int(i) for i in sig]
 
         print(sigma)
 
-        i = 1
-        s = sigma[i]
+        # s = 1
+        # dist[s] = 0
+        #
+        # while len(sigma) > 0:
+        #     u = sigma[-1]
+        #     del sigma[-1]
+        #
+        #     if dist[u]. != 10**9:
+        #         for i in self.adj_list[u]:
+        #             if dist[i[0]] < dist[u] + i[1]:
+        #                 dist[i[0]] = dist[u] + i[1]
+        #
+        # for i in range(self.num_vertices()):
+        #     print("INF ",end="") if (dist[i] == -10**9) else print(dist[i],end=" ")
 
-        # Now, initialize a list of longest, parent (For recovery) to negative infinity
-        longest = [-10**9 for k in range(len(sigma))] 
+        i = 0
+        j = 0
+        # s = sigma[i]
+
+        # Set to neg infinity
+        longest = [-10**9 for k in range(len(sigma))]
         parent = [-10 ** 9 for k in range(len(sigma))]
-
         longest[sigma[i]] = 0
+        parent[sigma[i]] = -10**9
 
-        # Have variable j run from i+1 to n
-        num_v = self.num_vertices()
-        for j in range(i+1, num_v):
-            # We need to set the longest at sigma[j] to the max of all edges that connect to sigma[j]
-            
-            possible_max = list()
-            
-            for l in range(0,j):
-                # print(l, j)
-                if self.isEdge(str(sigma[l]), str(sigma[j])) :
-                    
-                    if longest[sigma[l]] != -10**9:
-                        
-                        possible_max.append(longest[sigma[l]] + int(self.weight(str(sigma[l]), str(sigma[j]))))
-                        
-            if len(possible_max) != 0 :
-                
-                longest[sigma[j]] = max(possible_max)
-                
+        while j < i:
+            longest[sigma[j]] = -10**9
+            parent[sigma[j]] = -10**9
+            j +=1
+
+        # j = i + 1
+        #l = 0
+        for j in range(i+1, len(sigma)):
+
+            #print(i, j)
+
+            possble_max = list()
+
+            longl = 0
+            for l in range (0, j):
+                #print(l)
+                # print(sigma[l], sigma[j])
+                #print(sigma[j])
+                if self.isEdge(str(sigma[l]), str(sigma[j])) and longest[sigma[l]] != 1:
+                    #print("hit")
+                    #print(sigma)
+                    #print(longest[sigma[l]], int(self.weight(str(sigma[l]), str(sigma[j]))))
+                    possble_max.append(longest[sigma[l]] + int(self.weight(str(sigma[l]), str(sigma[j]))))
+                longl = l
+            #print(possble_max)
+
+            if len(possble_max) != 0:
+                longest[sigma[j]] = max(possble_max)
+
             if longest[sigma[j]] != -10**9:
-                parent[sigma[j]] = sigma[l]
-        print("Longest",longest)
-        print("parent",parent)
+                parent[sigma[j]] = sigma[longl]
+        print(longest)
+        # Recovery
 
-        # Recover our solution
-        j = self.num_vertices() - 1
-
-        if longest[sigma[j]] == 10**9:
-            return null
-
-        w = sigma[j]
-        p = list()
-        p.append(sigma[j])
-
-
-        while parent[w] != -10**9:
-            print(parent[w])
-            p.append(parent[w])
-            
-            if parent[parent[w]] in p:
-                break;
-
-            w = parent[w]
-            if parent[w + 1] == None:
-                break;
-
-        return p
 
 
 
@@ -479,10 +507,9 @@ graph2.Read_Edges("graph2.txt")
 
 ####### problem 1c
 # Checking if there's a cycle in graph 3
-# graph3 = graph()
-# graph3.Read_Edges("graph3.txt")
-# graph3.DFSwithFirst()
-# print(graph3.cycle())
+graph3 = graph()
+graph3.Read_Edges("graph3.txt")
+print(graph3.cycle())
 
 #### Problem 1d
 # graph2.findSCC()
@@ -510,5 +537,5 @@ graph2.Read_Edges("graph2.txt")
 # Part e
 fb = graph()
 fb.Read_Edges("facebooksample.txt")
-print(fb.Longest_Path())
+# fb.Longest_Path()
 
