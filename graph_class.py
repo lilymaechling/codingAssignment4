@@ -190,7 +190,8 @@ class graph(object):
         return max
 
     #### Depth First Search
-
+    # Input: Graph G
+    # Output: Path
     def DFS(self):
 
         for v in self.vertices:
@@ -208,9 +209,13 @@ class graph(object):
         print("first", self.first)
         return path
 
+    # Helper function for DFS
+    # Input: G, vertex v, and path
+    # Output: modifications to path
     def DFSHelper(self, vertex, path):
         global time
-
+        
+        # Keep track of vertexs that need to be visited. 
         stack = []
         stack.append(vertex)
 
@@ -231,17 +236,15 @@ class graph(object):
                         stack.append(n)
                         #topstack.append(n)
             else :
+                # Add to topstack, the stack that will help with top ordering
                 topstack.append(u)
             #topstack.append(u)
-        
-
-
-
-
-        #print(topstack)
-
+    
+    # Input: Graph G
+    # Output: Path
     def DFSwithFirst(self):
-
+        
+        # Keep track of parents
         parent_dict = dict()
 
         for v in self.vertices:
@@ -265,13 +268,18 @@ class graph(object):
         print("last", self.last)
 
         return parent_dict
-
+    
+    # Input: G, vertex v, and parent_dcit
+    # Output: modifications to parent_dic
     def DFSwithFirstHelper(self, vertex, parent_dict):
 
         # stack = []
         # stack.append(vertex)
 
+        # Keep track of visited vertexs
         self.visited[vertex] = 1
+        
+        #INIT the forest
         self.Fcomp[vertex] = self.fcomp
         self.time += 1
         self.first[vertex] = self.time
@@ -286,7 +294,8 @@ class graph(object):
         self.time += 1
         self.last[vertex] = self.time
 
-
+    # Input: G, isordered?, and order
+    # Output: DFS order
     def DFS_SCC(self, isOrder, order):
         global time
 
@@ -313,6 +322,8 @@ class graph(object):
                 self.SCCs.append(list())
                 self.DFS_SCC_Helper(v)
 
+    # Input: G, vertex
+    # Output: DFS order for v
     def DFS_SCC_Helper(self, v):
         global time
         stack = []
@@ -334,7 +345,8 @@ class graph(object):
                     self.visited[u] = 2
                     self.last[u] = time
 
-
+    # Input: G
+    # Output: A cycle in G
     def cycle(self):
 
         p_dict = self.DFSwithFirst()
@@ -364,7 +376,8 @@ class graph(object):
 
         return "No cycl" + "e found"
 
-
+    # Input: G
+    # Output: The biggest SCC
     def findSCC(self):
         global time
         # run DFS in forward order
@@ -405,30 +418,15 @@ class graph(object):
         print("num of SCC: ", grev.num_SCC)
         print("biggest SCC: ", biggest)
 
+    # Input: G
+    # Output: topolgical order aka sigma
     def Top_Order(self):
         #Run DFS
         self.DFS()
         return topstack[::-1]
-        # print(topstack[::-1])
 
-        #new_stack = []
-        # for n in topstack:
-        #     new_stack.append(int(n))
-        # sort = sorted(new_stack, reverse=True)
-        # print(sort)
-
-        # Re-order? Not sure if this works or not but what ever
-        #self.Reorder_Edges(path)
-
-
-
-    def Top_Order(self):
-        #Run DFS
-        self.DFS()
-        return topstack[::-1]
-        # return topstack
-
-
+    # Input: G
+    # Output: Longest path in G
     def Longest_Path(self):
        
         sig = self.Top_Order()
@@ -470,7 +468,7 @@ class graph(object):
             if len(possible_max) != 0 :
                 longest[sigma[j]] = max(possible_max)
             
-                # Fill our parent
+            # Fill our parent
             if longest[sigma[j]] != -10**9:
                 parent[sigma[j]] = sigma[l]
 
@@ -478,51 +476,49 @@ class graph(object):
 
         j = self.num_vertices() - 1
 
-        # Find a j such that sigma[j] = v
-        #j = 1
-        #for k in range(0, self.num_vertices()):
-        #    if longest[sigma[k]] != -10**9:
-        #        print(k)
-        #        j = k
-        #print("j is",j)
-        #if longest[sigma[j]] == 10**9:
-        #    return null
-
         w = sigma[j]
         p = list()
         p.append(sigma[j])
 
-
+        # Move through parents that are not negative infinity
         while parent[w] != -10**9:
             p.insert(0, parent[w])
             
+            # Make sure we aren't repeating here
             if parent[parent[w]] in p:
                 break;
 
             w = parent[w]
-            if parent[w + 1] == None:
-                break;
 
         return p
 
+    # Input: G, p
+    # Output: valid path or not
     def check_path(self, p) :
         previous = p[0]
         for el in p:
+            
+            # Basically skip the first element here
             if el == p[0]:
                 if not self.isVertex(str(el)):
                     #print("Breaking in 1")
                     return False
                 else :
                     continue
+                    
+            # Check vertex
             if not self.isVertex(str(el)) :
                 #print("Breaking in 2 with ", el)
                 return False
+            # Check to make sure that no vertex is repeated
             if p.count(el) > 1:
                 #print("Breaking in 3")
                 return False
+            # Check to make sure edge exists
             if not self.isEdge(str(previous), str(el)) :
                 #print("Breaking in 4", el)
                 return False
+            # Set previous element to the current element
             previous = el
         return True;
 
